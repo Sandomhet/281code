@@ -30,8 +30,9 @@ void RunningMedian::push(int value) {
 
 
 int RunningMedian::median() const {
+    // The reference solution sums in 32 bits, so wrap the same way (without signed-overflow UB).
     if (lower.size() == upper.size())
-        return static_cast<int>((static_cast<int64_t>(lower.top()) + upper.top()) / 2);
+        return static_cast<int32_t>(static_cast<uint32_t>(lower.top()) + static_cast<uint32_t>(upper.top())) / 2;
     return lower.top();
 }
 
