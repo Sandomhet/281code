@@ -1,0 +1,10 @@
+# Custom hunt order, several islands visited before the treasure
+M
+7
+o.....o
+.......
+..ooo..
+..o$o..
+..ooo..
+.......
+o..@..o

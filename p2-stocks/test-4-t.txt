@@ -1,0 +1,14 @@
+COMMENT: No-profit cases: buys only, buy before sell, equal prices, falling prices, and an untouched stock
+MODE: TL
+NUM_TRADERS: 2
+NUM_STOCKS: 5
+0 BUY T0 S0 $50 #1
+0 BUY T1 S0 $60 #1
+1 BUY T0 S1 $90 #1
+1 SELL T1 S1 $10 #1
+2 SELL T0 S2 $20 #1
+2 BUY T1 S2 $20 #1
+3 SELL T0 S3 $30 #1
+3 BUY T1 S3 $25 #1
+4 SELL T0 S3 $25 #1
+4 BUY T1 S3 $24 #1

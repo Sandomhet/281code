@@ -1,0 +1,7 @@
+# No path to treasure: failure line, verbose "failed", stats without path lines
+M
+4
+..#$
+..##
+o...
+...@

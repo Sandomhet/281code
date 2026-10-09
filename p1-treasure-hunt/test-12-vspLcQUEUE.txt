@@ -1,0 +1,12 @@
+# Impassable terrain blocks both captain and first mate
+L
+5
+4 0 @
+0 4 $
+0 3 #
+1 4 #
+1 3 o
+2 3 o
+2 4 o
+0 2 o
+1 2 o

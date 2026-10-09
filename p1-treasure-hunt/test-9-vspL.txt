@@ -1,0 +1,8 @@
+# Treasure hunt stops as soon as treasure is discovered, even mid-island
+M
+5
+ooooo
+oo$oo
+ooooo
+.....
+..@..

@@ -1,0 +1,12 @@
+# List input with blank lines and unspecified water; all options changed
+L
+6
+
+0 0 @
+2 2 o
+2 3 o
+
+3 3 o
+3 4 $
+5 5 o
+1 4 #

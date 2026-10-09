@@ -1,0 +1,19 @@
+COMMENT: Medians use integer division, skip untraded stocks, print on timestamps with no new trades
+MODE: TL
+NUM_TRADERS: 3
+NUM_STOCKS: 3
+0 BUY T0 S2 $5 #1
+1 SELL T1 S2 $3 #1
+1 SELL T1 S0 $10 #2
+1 BUY T2 S0 $10 #1
+3 BUY T0 S0 $20 #1
+3 BUY T0 S1 $7 #1
+5 SELL T2 S1 $1 #1
+5 BUY T1 S2 $8 #1
+6 SELL T0 S2 $8 #1
+9 BUY T1 S1 $2 #1
+12 SELL T2 S0 $15 #1
+12 BUY T2 S0 $16 #1
+15 BUY T0 S0 $100 #3
+15 SELL T1 S0 $1 #3
+20 BUY T1 S1 $9 #1

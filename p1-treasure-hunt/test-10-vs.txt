@@ -1,0 +1,13 @@
+# Several comment lines
+# and many islands, stats only
+# counts of went ashore and investigated
+M
+8
+$.o.o.o.
+........
+o.o.o.o.
+........
+o.o.o.o.
+........
+o.o.o.o.
+.......@

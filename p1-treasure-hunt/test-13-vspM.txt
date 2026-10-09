@@ -1,0 +1,9 @@
+# Treasure only reachable from an island whose land is discovered late
+M
+6
+......
+.####.
+.#o$#.
+.#oo#.
+.##o#.
+@.....

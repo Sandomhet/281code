@@ -1,0 +1,14 @@
+COMMENT: Buy-side priority: highest price first, earliest on ties, and resting buyer sets the price
+MODE: TL
+NUM_TRADERS: 4
+NUM_STOCKS: 1
+0 BUY T0 S0 $20 #3
+0 BUY T1 S0 $25 #3
+0 BUY T2 S0 $25 #3
+0 BUY T3 S0 $22 #3
+1 SELL T0 S0 $21 #8
+1 SELL T1 S0 $30 #5
+2 SELL T2 S0 $20 #5
+2 BUY T3 S0 $35 #6
+3 BUY T0 S0 $30 #1
+3 SELL T3 S0 $1 #1

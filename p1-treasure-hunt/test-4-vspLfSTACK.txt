@@ -1,0 +1,9 @@
+# Stack first mate: search order differs from queue
+M
+6
+@.....
+.oooo.
+.o.#o.
+.o#$o.
+.oooo.
+......

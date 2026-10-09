@@ -1,0 +1,11 @@
+# Many corners in the sail path; start on the edge
+M
+8
+@.#.....
+#.#.###.
+..#...#.
+.##.#.#.
+....#.#.
+#####.#.
+.$o...#.
+......#.

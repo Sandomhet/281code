@@ -1,0 +1,5 @@
+# Treasure adjacent to start: path length one, ashore directly on treasure
+M
+2
+.$
+.@

@@ -1,0 +1,17 @@
+COMMENT: Price ties go to earliest order; one order sweeps several; trades at the earlier order's price
+MODE: TL
+NUM_TRADERS: 4
+NUM_STOCKS: 2
+0 SELL T0 S0 $50 #5
+0 SELL T1 S0 $40 #5
+0 SELL T2 S0 $40 #5
+0 SELL T3 S0 $45 #5
+1 BUY T3 S0 $60 #17
+1 BUY T0 S1 $30 #4
+1 BUY T1 S1 $30 #4
+1 BUY T2 S1 $35 #4
+2 SELL T3 S1 $10 #10
+2 SELL T3 S1 $31 #3
+2 BUY T2 S0 $50 #10
+3 SELL T2 S0 $49 #2
+3 BUY T1 S1 $31 #1

@@ -1,0 +1,19 @@
+COMMENT: Equal-price sellers fill in arrival order, not by trader ID, quantity, or heap order
+MODE: TL
+NUM_TRADERS: 6
+NUM_STOCKS: 1
+0 SELL T5 S0 $20 #3
+0 SELL T3 S0 $20 #1
+0 SELL T4 S0 $20 #7
+0 SELL T0 S0 $25 #2
+0 SELL T1 S0 $20 #2
+0 SELL T2 S0 $20 #5
+1 SELL T0 S0 $20 #4
+1 SELL T5 S0 $19 #1
+1 SELL T1 S0 $20 #6
+2 BUY T0 S0 $20 #2
+2 BUY T1 S0 $20 #4
+2 BUY T2 S0 $30 #10
+2 BUY T3 S0 $20 #3
+3 BUY T4 S0 $22 #6
+3 BUY T5 S0 $25 #10

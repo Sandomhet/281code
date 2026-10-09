@@ -1,0 +1,9 @@
+# Queue captain, stack first mate on a winding island
+M
+6
+......
+.oooo.
+.o##o.
+.o$#o.
+.####.
+.....@
