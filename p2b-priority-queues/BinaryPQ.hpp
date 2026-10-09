@@ -18,9 +18,7 @@ public:
     // Description: Construct an empty PQ with an optional comparison functor.
     // Runtime: O(1)
     explicit BinaryPQ(COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp } {
-        // TODO: Implement this function, or verify that it is already done
-    }  // BinaryPQ
+        : BaseClass { comp } {}  // BinaryPQ
 
 
     // Description: Construct a PQ out of an iterator range with an optional
@@ -28,10 +26,9 @@ public:
     // Runtime: O(n) where n is number of elements in range.
     template<typename InputIterator>
     BinaryPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp } {
-        // TODO: Implement this function
-        (void)start;  // Delete this line when you implement this function
-        (void)end;  // Delete this line when you implement this function
+        : BaseClass { comp }
+        , data { start, end } {
+        updatePriorities();
     }  // BinaryPQ
 
 
@@ -56,15 +53,18 @@ public:
     //              'rebuilds' the heap by fixing the heap invariant.
     // Runtime: O(n)
     virtual void updatePriorities() {
-        // TODO: Implement this function.
+        // Bottom-up heapify: fix down every non-leaf, starting from the last.
+        for (size_t i = data.size() / 2; i > 0; --i) {
+            fixDown(i - 1);
+        }  // for ..i
     }  // updatePriorities()
 
 
     // Description: Add a new element to the PQ.
     // Runtime: O(log(n))
     virtual void push(const TYPE &val) {
-        // TODO: Implement this function.
-        (void)val;  // Delete this line when you implement this function
+        data.push_back(val);
+        fixUp(data.size() - 1);
     }  // push()
 
 
@@ -75,7 +75,11 @@ public:
     // familiar with them, you do not need to use exceptions in this project.
     // Runtime: O(log(n))
     virtual void pop() {
-        // TODO: Implement this function.
+        std::swap(data.front(), data.back());
+        data.pop_back();
+        if (!data.empty()) {
+            fixDown(0);
+        }  // if
     }  // pop()
 
 
@@ -84,31 +88,17 @@ public:
     //              be const because we cannot allow it to be modified, as
     //              that might make it no longer be the most extreme element.
     // Runtime: O(1)
-    virtual const TYPE &top() const {
-        // TODO: Implement this function.
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp;  // TODO: Delete this line
-        return temp;  // TODO: Delete or change this line
-    }  // top()
+    virtual const TYPE &top() const { return data.front(); }  // top()
 
 
     // Description: Get the number of elements in the PQ.
     // Runtime: O(1)
-    [[nodiscard]] virtual std::size_t size() const {
-        // TODO: Implement this function. Might be very simple,
-        // depending on your implementation.
-        return 0;  // TODO: Delete or change this line
-    }  // size()
+    [[nodiscard]] virtual std::size_t size() const { return data.size(); }  // size()
 
 
     // Description: Return true if the PQ is empty.
     // Runtime: O(1)
-    [[nodiscard]] virtual bool empty() const {
-        // TODO: Implement this function. Might be very simple,
-        // depending on your implementation.
-        return true;  // TODO: Delete or change this line
-    }  // empty()
+    [[nodiscard]] virtual bool empty() const { return data.empty(); }  // empty()
 
 
 private:
@@ -118,8 +108,39 @@ private:
     //       a "heapSize", since you can call your own size() member
     //       function, or check data.size().
 
-    // TODO: Add any additional member functions you require here.
-    //       For instance, you might add fixUp() and fixDown().
+    // Description: Move the element at index i up toward the root until its
+    //              parent is at least as extreme.
+    // Runtime: O(log(n))
+    void fixUp(size_t i) {
+        while (i > 0) {
+            size_t parent = (i - 1) / 2;
+            if (!this->compare(data[parent], data[i])) {
+                break;
+            }  // if
+            std::swap(data[parent], data[i]);
+            i = parent;
+        }  // while
+    }  // fixUp()
+
+
+    // Description: Move the element at index i down toward the leaves until
+    //              it is at least as extreme as both of its children.
+    // Runtime: O(log(n))
+    void fixDown(size_t i) {
+        const size_t n = data.size();
+        while (2 * i + 1 < n) {
+            size_t child = 2 * i + 1;
+            // Pick the more extreme of the two children.
+            if (child + 1 < n && this->compare(data[child], data[child + 1])) {
+                ++child;
+            }  // if
+            if (!this->compare(data[i], data[child])) {
+                break;
+            }  // if
+            std::swap(data[i], data[child]);
+            i = child;
+        }  // while
+    }  // fixDown()
 };  // BinaryPQ
 
 

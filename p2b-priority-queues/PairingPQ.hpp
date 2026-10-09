@@ -41,7 +41,9 @@ public:
         TYPE elt;
         Node *child = nullptr;
         Node *sibling = nullptr;
-        // TODO: Add and initialize one extra pointer (parent or previous) as desired.
+        // Points to the parent if this is the leftmost child, otherwise to
+        // the sibling on the left. Null for the root.
+        Node *previous = nullptr;
     };  // Node
 
 
@@ -49,9 +51,7 @@ public:
     //              comparison functor.
     // Runtime: O(1)
     explicit PairingPQ(COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp } {
-        // TODO: Implement this function.
-    }  // PairingPQ()
+        : BaseClass { comp } {}  // PairingPQ()
 
 
     // Description: Construct a pairing heap out of an iterator range with an
@@ -60,9 +60,9 @@ public:
     template<typename InputIterator>
     PairingPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
         : BaseClass { comp } {
-        // TODO: Implement this function.
-        (void)start;  // Delete this line when you implement this function
-        (void)end;  // Delete this line when you implement this function
+        for (; start != end; ++start) {
+            push(*start);
+        }  // for
     }  // PairingPQ()
 
 
@@ -70,19 +70,30 @@ public:
     // Runtime: O(n)
     PairingPQ(const PairingPQ &other)
         : BaseClass { other.compare } {
-        // TODO: Implement this function.
-        // NOTE: The structure does not have to be identical to the original,
-        //       but it must still be a valid pairing heap.
+        if (!other.root) {
+            return;
+        }  // if
+        std::deque<Node *> nodes { other.root };
+        while (!nodes.empty()) {
+            Node *cur = nodes.front();
+            nodes.pop_front();
+            if (cur->child) {
+                nodes.push_back(cur->child);
+            }  // if
+            if (cur->sibling) {
+                nodes.push_back(cur->sibling);
+            }  // if
+            push(cur->elt);
+        }  // while
     }  // PairingPQ()
 
 
     // Description: Copy assignment operator.
     // Runtime: O(n)
     PairingPQ &operator=(const PairingPQ &rhs) {
-        // TODO: Implement this function.
-        // HINT: Use the copy-swap method from the "Arrays and Containers"
-        // lecture.
-        (void)rhs;  // Delete this line when you implement this function
+        PairingPQ temp { rhs };
+        std::swap(root, temp.root);
+        std::swap(count, temp.count);
         return *this;
     }  // operator=()
 
@@ -90,15 +101,40 @@ public:
     // Description: Destructor
     // Runtime: O(n)
     ~PairingPQ() {
-        // TODO: Implement this function.
-        ;  // Delete this line, it prevents linter complaints
+        if (!root) {
+            return;
+        }  // if
+        std::deque<Node *> nodes { root };
+        while (!nodes.empty()) {
+            Node *cur = nodes.front();
+            nodes.pop_front();
+            if (cur->child) {
+                nodes.push_back(cur->child);
+            }  // if
+            if (cur->sibling) {
+                nodes.push_back(cur->sibling);
+            }  // if
+            delete cur;
+        }  // while
     }  // ~PairingPQ()
 
 
-    // Description: Move constructor and assignment operators don't need any
-    //              code, the members will be reused automatically.
-    PairingPQ(PairingPQ &&) noexcept = default;
-    PairingPQ &operator=(PairingPQ &&) noexcept = default;
+    // Description: Move constructor and assignment operator. These steal the
+    //              other heap's nodes; a defaulted version would copy the
+    //              raw root pointer and both destructors would free it.
+    PairingPQ(PairingPQ &&other) noexcept
+        : BaseClass { std::move(other) }
+        , root { other.root }
+        , count { other.count } {
+        other.root = nullptr;
+        other.count = 0;
+    }  // PairingPQ()
+
+    PairingPQ &operator=(PairingPQ &&rhs) noexcept {
+        std::swap(root, rhs.root);
+        std::swap(count, rhs.count);
+        return *this;
+    }  // operator=()
 
 
     // Description: Assumes that all elements inside the pairing heap are out
@@ -107,7 +143,26 @@ public:
     //              and create new ones!
     // Runtime: O(n)
     virtual void updatePriorities() {
-        // TODO: Implement this function.
+        if (!root) {
+            return;
+        }  // if
+        // Detach every node into a standalone heap, then meld them back in.
+        std::deque<Node *> nodes { root };
+        root = nullptr;
+        while (!nodes.empty()) {
+            Node *cur = nodes.front();
+            nodes.pop_front();
+            if (cur->child) {
+                nodes.push_back(cur->child);
+            }  // if
+            if (cur->sibling) {
+                nodes.push_back(cur->sibling);
+            }  // if
+            cur->child = nullptr;
+            cur->sibling = nullptr;
+            cur->previous = nullptr;
+            root = root ? meld(root, cur) : cur;
+        }  // while
     }  // updatePriorities()
 
 
@@ -127,7 +182,31 @@ public:
     // this project.
     // Runtime: Amortized O(log(n))
     virtual void pop() {
-        // TODO: Implement this function.
+        Node *first = root->child;
+        delete root;
+        root = nullptr;
+        --count;
+
+        // Multi-pass: meld the old root's children two at a time, front to
+        // back, until a single heap remains.
+        std::deque<Node *> heaps;
+        while (first) {
+            Node *next = first->sibling;
+            first->sibling = nullptr;
+            first->previous = nullptr;
+            heaps.push_back(first);
+            first = next;
+        }  // while
+        while (heaps.size() > 1) {
+            Node *a = heaps.front();
+            heaps.pop_front();
+            Node *b = heaps.front();
+            heaps.pop_front();
+            heaps.push_back(meld(a, b));
+        }  // while
+        if (!heaps.empty()) {
+            root = heaps.front();
+        }  // if
     }  // pop()
 
 
@@ -137,28 +216,16 @@ public:
     //              modified, as that might make it no longer be the most
     //              extreme element.
     // Runtime: O(1)
-    virtual const TYPE &top() const {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp;  // TODO: Delete this line
-        return temp;  // TODO: Delete or change this line
-    }  // top()
+    virtual const TYPE &top() const { return root->elt; }  // top()
 
 
     // Description: Get the number of elements in the pairing heap.
     // Runtime: O(1)
-    [[nodiscard]] virtual std::size_t size() const {
-        // TODO: Implement this function
-        return 0;  // TODO: Delete or change this line
-    }  // size()
+    [[nodiscard]] virtual std::size_t size() const { return count; }  // size()
 
     // Description: Return true if the pairing heap is empty.
     // Runtime: O(1)
-    [[nodiscard]] virtual bool empty() const {
-        // TODO: Implement this function
-        return true;  // TODO: Delete or change this line
-    }  // empty()
+    [[nodiscard]] virtual bool empty() const { return count == 0; }  // empty()
 
 
     // Description: Updates the priority of an element already in the pairing
@@ -170,9 +237,24 @@ public:
     //
     // Runtime: As discussed in reading material.
     void updateElt(Node *node, const TYPE &new_value) {
-        // TODO: Implement this function
-        (void)node;  // Delete this line when you implement this function
-        (void)new_value;  // Delete this line when you implement this func
+        node->elt = new_value;
+        if (node == root) {
+            return;
+        }  // if
+
+        // Cut the node (with its subtree) out of its sibling list.
+        if (node->previous->child == node) {
+            node->previous->child = node->sibling;
+        } else {
+            node->previous->sibling = node->sibling;
+        }  // if
+        if (node->sibling) {
+            node->sibling->previous = node->previous;
+        }  // if
+        node->sibling = nullptr;
+        node->previous = nullptr;
+
+        root = meld(root, node);
     }  // updateElt()
 
 
@@ -184,22 +266,33 @@ public:
     //       until it is eliminated by the user calling pop(). Remember this
     //       when you implement updateElt() and updatePriorities().
     Node *addNode(const TYPE &val) {
-        // TODO: Implement this function
-        (void)val;  // Delete this line when you implement this function
-        return nullptr;  // TODO: Delete or change this line
+        Node *node = new Node { val };
+        root = root ? meld(root, node) : node;
+        ++count;
+        return node;
     }  // addNode()
 
 
 private:
-    // TODO: Add any additional member variables or member functions you
-    // require here.
-    // TODO: We recommend creating a 'meld' function (see the Pairing Heap
-    // papers).
+    Node *root = nullptr;
+    std::size_t count = 0;
 
-    // NOTE: For member variables, you are only allowed to add a "root
-    //       pointer" and a "count" of the number of nodes. Anything else
-    //       (such as a deque) should be declared inside of member functions
-    //       as needed.
+    // Description: Combine two heaps whose roots have no siblings and no
+    //              previous pointer. The less extreme root becomes the
+    //              leftmost child of the other. Returns the new root.
+    // Runtime: O(1)
+    Node *meld(Node *a, Node *b) {
+        if (this->compare(a->elt, b->elt)) {
+            std::swap(a, b);
+        }  // if
+        b->sibling = a->child;
+        if (a->child) {
+            a->child->previous = b;
+        }  // if
+        b->previous = a;
+        a->child = b;
+        return a;
+    }  // meld()
 };
 
 

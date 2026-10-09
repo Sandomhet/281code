@@ -25,10 +25,13 @@
  */
 
 #include <cassert>
+#include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "BinaryPQ.hpp"
@@ -93,7 +96,52 @@ void testPrimitiveOperations() {
     assert(eecsPQ.size() == 0);  // NOLINT: Explicit test for size == 0
     assert(eecsPQ.empty());
 
-    // TODO: Add more testing here!
+    // Duplicates and interleaved push/pop
+    for (int v : { 5, 1, 5, 9, 3, 9, 0 }) {
+        eecsPQ.push(v);
+    } // for
+    assert(eecsPQ.size() == 7);
+    assert(eecsPQ.top() == 9);
+    eecsPQ.pop();
+    assert(eecsPQ.top() == 9);
+    eecsPQ.pop();
+    eecsPQ.push(7);
+    assert(eecsPQ.top() == 7);
+    for (int expected : { 7, 5, 5, 3, 1, 0 }) {
+        assert(eecsPQ.top() == expected);
+        eecsPQ.pop();
+    } // for
+    assert(eecsPQ.empty());
+
+    // Single element
+    eecsPQ.push(42);
+    assert(eecsPQ.top() == 42);
+    eecsPQ.pop();
+    assert(eecsPQ.empty());
+
+    // Range constructor
+    const std::vector<int> vec { 4, 8, 1, 8, 6, 2 };
+    PQ<int> ranged { vec.begin(), vec.end() };
+    assert(ranged.size() == vec.size());
+    for (int expected : { 8, 8, 6, 4, 2, 1 }) {
+        assert(ranged.top() == expected);
+        ranged.pop();
+    } // for
+    assert(ranged.empty());
+
+    // Min-PQ via std::greater
+    PQ<int, std::greater<int>> minPQ { vec.begin(), vec.end() };
+    for (int expected : { 1, 2, 4, 6, 8, 8 }) {
+        assert(minPQ.top() == expected);
+        minPQ.pop();
+    } // for
+    assert(minPQ.empty());
+
+    // Empty range constructor
+    PQ<int> emptyRanged { vec.begin(), vec.begin() };
+    assert(emptyRanged.empty());
+    emptyRanged.push(1);
+    assert(emptyRanged.top() == 1);
 
     std::cout << "testPrimitiveOperations succeeded!" << std::endl;
 } // testPrimitiveOperations()
@@ -109,18 +157,28 @@ void testHiddenData() {
 
     struct HiddenDataComp {
         bool operator()(const HiddenData &a, const HiddenData &b) const {
-            // TODO: Finish this comparator
-            (void)a;  // Delete this line when you finish this function
-            (void)b;  // Delete this line when you finish this function
-            return false;
+            return a.data < b.data;
         } // operator()()
     }; // comparator
 
     std::cout << "Testing with hidden data..." << std::endl;
 
-    // TODO: Add code here to actually test with the HiddenData type.
-    // Consider writing this code in the style of testPrimitiveOperations
-    // above.
+    PQ<HiddenData, HiddenDataComp> pq {};
+    Eecs281PQ<HiddenData, HiddenDataComp> &eecsPQ = pq;
+
+    for (int v : { 3, 7, 1, 7, 4 }) {
+        eecsPQ.push(HiddenData { v });
+    } // for
+    assert(eecsPQ.size() == 5);
+    for (int expected : { 7, 7, 4, 3, 1 }) {
+        assert(eecsPQ.top().data == expected);
+        eecsPQ.pop();
+    } // for
+    assert(eecsPQ.empty());
+
+    const std::vector<HiddenData> vec { { 2 }, { 9 }, { 5 } };
+    PQ<HiddenData, HiddenDataComp> ranged { vec.begin(), vec.end() };
+    assert(ranged.top().data == 9);
 
     std::cout << "testHiddenData succeeded!" << std::endl;
 } // testHiddenData()
@@ -152,8 +210,55 @@ void testUpdatePriorities() {
     assert(*eecsPQ.top() == 10);
     assert(eecsPQ.top() == &datum);
 
-    // TODO: Add more testing here as you see fit.
+    // Larger scramble: reverse every priority.
+    std::vector<int> many(50);  // NOLINT
+    for (size_t i = 0; i < many.size(); ++i) {
+        many[i] = static_cast<int>(i);
+    } // for
+    PQ<const int *, IntPtrComp> pq2 {};
+    for (auto &v : many) {
+        pq2.push(&v);
+    } // for
+    assert(*pq2.top() == 49);
+    for (auto &v : many) {
+        v = -v;
+    } // for
+    pq2.updatePriorities();
+    for (int expected = 0; expected > -50; --expected) {
+        assert(*pq2.top() == expected);
+        pq2.pop();
+    } // for
+    assert(pq2.empty());
+
+    std::cout << "testUpdatePriorities succeeded!" << std::endl;
 } // testUpdatePriorities()
+
+
+// Random interleaved operations, checked against UnorderedPQ.
+template <template <typename...> typename PQ, typename COMP>
+void testRandomAgainstUnordered() {
+    std::srand(281);  // NOLINT
+    PQ<int, COMP> pq {};
+    UnorderedPQ<int, COMP> ref {};
+    for (int i = 0; i < 20000; ++i) {  // NOLINT
+        if (ref.empty() || std::rand() % 3 != 0) {  // NOLINT
+            int v = std::rand() % 1000;  // NOLINT
+            pq.push(v);
+            ref.push(v);
+        } else {
+            assert(pq.top() == ref.top());
+            pq.pop();
+            ref.pop();
+        } // if
+        assert(pq.size() == ref.size());
+    } // for
+    while (!ref.empty()) {
+        assert(pq.top() == ref.top());
+        pq.pop();
+        ref.pop();
+    } // while
+    assert(pq.empty());
+} // testRandomAgainstUnordered()
 
 
 // Test the pairing heap's range-based constructor, copy constructor,
@@ -196,7 +301,72 @@ void testPairing() {
 
         std::cout << "Basic tests done." << std::endl;
 
-        // TODO: Add more code to test addNode, updateElt, etc.
+        // Remaining contents after the operations above
+        assert(pq1.size() == 3);
+        assert(pq2.size() == 2);
+        assert(pq3.size() == 2);
+        assert(pq3.top() == 1);
+
+        // Copies must be independent
+        pairing3.push(100);  // NOLINT
+        assert(pairing3.top() == 100);
+        assert(pairing2.top() != 100);
+
+        // Self-assignment
+        PairingPQ<int> &alias = pairing3;
+        pairing3 = alias;
+        assert(pairing3.top() == 100);
+        assert(pairing3.size() == 3);
+
+        // addNode / updateElt
+        PairingPQ<int> heap {};
+        std::vector<PairingPQ<int>::Node *> nodes;
+        for (int v : { 10, 20, 30, 40, 50 }) {  // NOLINT
+            nodes.push_back(heap.addNode(v));
+        } // for
+        assert(**nodes[2] == 30);
+        assert(heap.top() == 50);
+
+        heap.updateElt(nodes[0], 60);  // root child -> new top  NOLINT
+        assert(heap.top() == 60);
+        assert(nodes[0]->getElt() == 60);
+        heap.updateElt(nodes[0], 70);  // already the root  NOLINT
+        assert(heap.top() == 70);
+        heap.pop();
+        assert(heap.top() == 50);
+        heap.updateElt(nodes[2], 55);  // deeper node after a pop  NOLINT
+        assert(heap.top() == 55);
+        for (int expected : { 55, 50, 40, 20 }) {
+            assert(heap.top() == expected);
+            heap.pop();
+        } // for
+        assert(heap.empty());
+
+        // Many updateElt calls interleaved with pops
+        PairingPQ<int> big {};
+        std::vector<PairingPQ<int>::Node *> bigNodes;
+        for (int i = 0; i < 1000; ++i) {  // NOLINT
+            bigNodes.push_back(big.addNode(i));
+        } // for
+        for (int i = 0; i < 500; ++i) {  // NOLINT
+            big.pop();  // removes 999 down to 500
+        } // for
+        for (int i = 0; i < 500; ++i) {  // NOLINT
+            big.updateElt(bigNodes[static_cast<size_t>(i)], 2000 + i);  // NOLINT
+        } // for
+        for (int expected = 2499; expected >= 2000; --expected) {  // NOLINT
+            assert(big.top() == expected);
+            big.pop();
+        } // for
+        assert(big.empty());
+
+        // Move construction / assignment
+        PairingPQ<int> moved { std::move(pairing1) };
+        assert(moved.size() == 3);
+        assert(moved.top() == 3);
+        PairingPQ<int> moveAssigned {};
+        moveAssigned = std::move(moved);
+        assert(moveAssigned.top() == 3);
 
         // That { above creates a scope, and our pairing heaps will fall out
         // of scope at the matching } below.
@@ -213,6 +383,8 @@ void testPriorityQueue() {
     testPrimitiveOperations<PQ>();
     testHiddenData<PQ>();
     testUpdatePriorities<PQ>();
+    testRandomAgainstUnordered<PQ, std::less<int>>();
+    testRandomAgainstUnordered<PQ, std::greater<int>>();
 } // testPriorityQueue()
 
 // PairingPQ has some extra behavior we need to test in updateElement.
@@ -223,6 +395,8 @@ void testPriorityQueue<PairingPQ>() {
     testPrimitiveOperations<PairingPQ>();
     testHiddenData<PairingPQ>();
     testUpdatePriorities<PairingPQ>();
+    testRandomAgainstUnordered<PairingPQ, std::less<int>>();
+    testRandomAgainstUnordered<PairingPQ, std::greater<int>>();
     testPairing();
 } // testPriorityQueue<PairingPQ>()
 
@@ -249,10 +423,18 @@ int main() {
 
     std::cout << "Testing the " << pqType << " PQ...";
 
-    // TODO: Add more cases to test other priority queue types.
     switch (pqType) {
     case PQType::Unordered:
         testPriorityQueue<UnorderedPQ>();
+        break;
+    case PQType::Sorted:
+        testPriorityQueue<SortedPQ>();
+        break;
+    case PQType::Binary:
+        testPriorityQueue<BinaryPQ>();
+        break;
+    case PQType::Pairing:
+        testPriorityQueue<PairingPQ>();
         break;
     default:
         std::cout << "Unrecognized PQ type " << pqType << " in main.\n"

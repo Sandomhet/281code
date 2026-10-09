@@ -24,7 +24,7 @@ SHELL = /bin/bash
 # TODO (begin) #
 #######################
 # Change 'youruniqname' to match your UM uniqname (no quote marks).
-UNIQNAME    = 81816196
+UNIQNAME    = zshaojia
 
 # Change the right hand side of the identifier to match the project identifier
 # given in the project or lab specification.
