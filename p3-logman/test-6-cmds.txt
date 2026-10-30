@@ -1,0 +1,18 @@
+a 2
+a 1
+a 0
+a 3
+e 0
+b 2
+d 2
+p
+s
+p
+k same LINE
+g
+r
+s
+p
+l
+p
+q

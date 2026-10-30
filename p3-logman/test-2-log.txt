@@ -1,0 +1,5 @@
+01:01:01:01:01|Net-IO|packet sent to host
+01:01:01:01:02|net|packets were sent
+01:01:01:01:03|IO|Packet: SENT!
+01:01:01:01:04|misc|nothing to see here io
+01:01:01:01:05|sent|packet

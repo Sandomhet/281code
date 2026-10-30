@@ -1,0 +1,16 @@
+# comment with commands: a 0 p
+r
+z 12
+c disk
+r
+r
+c Disk IO
+g
+c nope
+r
+k failed write
+r
+p
+s
+p
+q

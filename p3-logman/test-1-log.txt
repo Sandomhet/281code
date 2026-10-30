@@ -1,0 +1,5 @@
+05:05:05:05:05|beta|second by category
+05:05:05:05:05|ALPHA|first by category
+05:05:05:05:05|Beta|tie broken by id
+05:05:05:05:05|alpha|alpha again
+01:01:01:01:01|zeta|earliest

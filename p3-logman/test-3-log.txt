@@ -1,0 +1,5 @@
+00:00:00:01:00|A|one minute
+00:00:00:00:61|A|sixty one seconds
+00:00:00:00:61|a|same time lower a
+99:99:99:99:99|B|max
+00:00:00:00:00|C|zero
