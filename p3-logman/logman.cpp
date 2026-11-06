@@ -43,7 +43,7 @@ struct SearchResult {
         case Kind::External:  return external->size();
         case Kind::Owned:     return owned.size();
         case Kind::None:      break;
-        }  // switch
+        }
         return 0;
     }
 
@@ -54,7 +54,7 @@ struct SearchResult {
         case Kind::External:  for (uint32_t i : *external) func(i);                     break;
         case Kind::Owned:     for (uint32_t i : owned) func(i);                         break;
         case Kind::None:                                                                 break;
-        }  // switch
+        }
     }
 };
 
@@ -101,7 +101,7 @@ static int64_t parseTimestamp(const string &ts) {
     for (char c : ts) {
         if (c != ':')
             value = value * 10 + (c - '0');
-    }  // for
+    }
     return value;
 }
 
@@ -127,8 +127,8 @@ static void forEachWord(const string &text, Func func) {
         } else if (!word.empty()) {
             func(word);
             word.clear();
-        }  // else if
-    }  // for
+        }
+    }
     if (!word.empty())
         func(word);
 }
@@ -148,7 +148,7 @@ void LogManager::readLog(const string &filename) {
     if (fin.fail()) {
         cerr << "Could not open master log file\n";
         exit(1);
-    }  // if
+    }
 
     string line;
     while (getline(fin, line)) {
@@ -166,7 +166,7 @@ void LogManager::readLog(const string &filename) {
         entry.lowerCategory = entry.category;
         toLower(entry.lowerCategory);
         entries.push_back(std::move(entry));
-    }  // while
+    }
 
     cout << entries.size() << " entries read\n";
     buildIndices();
@@ -197,7 +197,7 @@ void LogManager::buildIndices() {
         };
         forEachWord(entry.category, addWord);
         forEachWord(entry.message, addWord);
-    }  // for
+    }
 }
 
 
@@ -209,7 +209,7 @@ void LogManager::run() {
         if (cin.fail()) {
             cerr << "cin entered fail state: exiting" << endl;
             exit(1);
-        }  // if
+        }
 
         string junk;
         switch (command) {
@@ -229,7 +229,7 @@ void LogManager::run() {
         case 'q':                         break;
         case '#': getline(cin, junk);     break;
         default:  cerr << "Unknown command: " << command << '\n';  getline(cin, junk);  break;
-        }  // switch
+        }
     } while (command != 'q');
 }
 
@@ -253,7 +253,7 @@ void LogManager::timestampSearch() {
     if (bar != 14 || arg.size() - bar - 1 != 14) {
         cerr << "Invalid timestamps for t command: " << arg << '\n';
         return;
-    }  // if
+    }
 
     setTimeRange(parseTimestamp(arg.substr(0, bar)), parseTimestamp(arg.substr(bar + 1)));
     cout << "Timestamps search: " << lastSearch.size() << " entries found\n";
@@ -309,8 +309,8 @@ void LogManager::keywordSearch() {
             set_intersection(lastSearch.owned.begin(), lastSearch.owned.end(),
                              lists[i]->begin(), lists[i]->end(), back_inserter(scratch));
             lastSearch.owned.swap(scratch);
-        }  // for
-    }  // if
+        }
+    }
     cout << "Keyword search: " << lastSearch.size() << " entries found\n";
 }
 
@@ -321,7 +321,7 @@ void LogManager::appendEntry() {
     if (entryID < 0 || entryID >= static_cast<long long>(entries.size())) {
         cerr << "Invalid entryID for a command: " << entryID << '\n';
         return;
-    }  // if
+    }
 
     excerpt.push_back(idToSorted[static_cast<size_t>(entryID)]);
     cout << "log entry " << entryID << " appended\n";
@@ -332,7 +332,7 @@ void LogManager::appendSearchResults() {
     if (lastSearch.kind == SearchResult::Kind::None) {
         cerr << "No previous search for r command\n";
         return;
-    }  // if
+    }
 
     excerpt.reserve(excerpt.size() + lastSearch.size());
     lastSearch.forEach([this](uint32_t i) { excerpt.push_back(i); });
@@ -346,7 +346,7 @@ bool LogManager::readExcerptPosition(size_t &position, char command) {
     if (value < 0 || value >= static_cast<long long>(excerpt.size())) {
         cerr << "Invalid excerpt list position for " << command << " command: " << value << '\n';
         return false;
-    }  // if
+    }
     position = static_cast<size_t>(value);
     return true;
 }
@@ -389,7 +389,7 @@ void LogManager::sortExcerpt() {
     if (excerpt.empty()) {
         cout << "(previously empty)\n";
         return;
-    }  // if
+    }
 
     cout << "previous ordering:\n";
     printExcerptSummary();
@@ -405,7 +405,7 @@ void LogManager::clearExcerpt() {
     if (excerpt.empty()) {
         cout << "(previously empty)\n";
         return;
-    }  // if
+    }
 
     cout << "previous contents:\n";
     printExcerptSummary();
@@ -417,7 +417,7 @@ void LogManager::printSearchResults() const {
     if (lastSearch.kind == SearchResult::Kind::None) {
         cerr << "No previous search for g command\n";
         return;
-    }  // if
+    }
 
     lastSearch.forEach([this](uint32_t i) { printEntry(i); });
 }
@@ -475,13 +475,13 @@ string getLogFile(int argc, char **argv) {
         case 'h': printHelp(*argv);  exit(0);
         case 'f': filename = optarg;  break;
         default:  cerr << "Error: invalid option\n";  exit(1);
-        }  // switch
-    }  // while
+        }
+    }
 
     if (filename.empty()) {
         cerr << "Error: no log file specified (use -f LOGFILE)\n";
         exit(1);
-    }  // if
+    }
     return filename;
 }
 
